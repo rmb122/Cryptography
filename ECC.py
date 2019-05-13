@@ -110,7 +110,7 @@ class publicKey():
         self.p = p
         self.mapTable = []
         for i in range(0, 256): # 生成映射表
-            self.mapTable.append(c.mul(c.G, i))
+            self.mapTable.append(self.c.mul(self.c.G, i))
     
 
     def encode(self, msg):
@@ -122,9 +122,9 @@ class publicKey():
 
 
     def encryptPoint(self, point):  # 多个点公用一个 k 会降低安全性
-        k = random(c.n)
-        cipher = c.add(point, c.mul(self.p, k))
-        return (c.mul(c.G, k), cipher)
+        k = random(self.c.n)
+        cipher = self.c.add(point, self.c.mul(self.p, k))
+        return (self.c.mul(self.c.G, k), cipher)
 
     
     def encryptMsg(self, msg):
@@ -141,7 +141,7 @@ class privateKey():
         self.n = n
         self.mapTable = dict()
         for i in range(0, 256): # 生成映射表
-            self.mapTable[c.mul(c.G, i)] = i
+            self.mapTable[self.c.mul(self.c.G, i)] = i
     
 
     def decode(self, points):
@@ -154,7 +154,7 @@ class privateKey():
 
     
     def decryptPoint(self, pointPair):
-        m = c.minus(pointPair[1], c.mul(pointPair[0], self.n))
+        m = self.c.minus(pointPair[1], self.c.mul(pointPair[0], self.n))
         return m
     
 
@@ -176,17 +176,16 @@ def getKeyPair():
 class ECDH():
     def __init__(self):
         self.c = secp256k1() # 椭圆曲线
-        self.k = random(c.n)
-        self.p = c.mul(c.G, self.k)
+        self.k = random(self.c.n)
+        self.p = self.c.mul(self.c.G, self.k)
     
     def sendPublic(self):
         return self.p
     
     def getCommonKey(self, p):
-        return c.mul(p, self.k)
+        return self.c.mul(p, self.k)
 
 
-c = secp256k1()
 pri, pub = getKeyPair()
 msg = pub.encryptMsg("test")
 print(msg)
